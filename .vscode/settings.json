@@ -1,0 +1,27 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "Lives/jcalendar-1.4.jar",
+        "Lives/xstream-1.4.20.jar",
+        "Lives/xstream-benchmark-1.4.20.jar",
+        "Lives/xstream-hibernate-1.4.20.jar",
+        "Lives/xstream-jmh-1.4.20.jar",
+        "Lives/xstream/activation-1.1.1.jar",
+        "Lives/xstream/cglib-nodep-2.2.jar",
+        "Lives/xstream/dom4j-1.6.1.jar",
+        "Lives/xstream/jdom-1.1.3.jar",
+        "Lives/xstream/jdom2-2.0.5.jar",
+        "Lives/xstream/jettison-1.2.jar",
+        "Lives/xstream/joda-time-1.6.jar",
+        "Lives/xstream/kxml2-min-2.3.0.jar",
+        "Lives/xstream/mxparser-1.2.2.jar",
+        "Lives/xstream/stax-1.2.0.jar",
+        "Lives/xstream/stax2-api-4.2.jar",
+        "Lives/xstream/stax-api-1.0.1.jar",
+        "Lives/xstream/woodstox-core-5.4.0.jar",
+        "Lives/xstream/xmlpull-1.1.3.1.jar",
+        "Lives/xstream/xom-1.1.jar",
+        "Lives/xstream/xpp3_min-1.1.4c.jar",
+        "Lives/AbsoluteLayout-RELEASE190.jar"
+    ]
+}
