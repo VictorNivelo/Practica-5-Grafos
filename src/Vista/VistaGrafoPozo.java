@@ -635,8 +635,12 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
     private void btnBellmanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBellmanActionPerformed
 
         try {
+            long tiempoInicio = System.currentTimeMillis();
             String resultado = bellmanFord(pozoControlDao.getGrafo(), 1);
             mostrarResultadoEnTextArea(resultado, txaBellman);
+            long tiempoFin = System.currentTimeMillis();
+            long tiempoEjecucion = tiempoFin - tiempoInicio;
+            JOptionPane.showMessageDialog(null, "Tiempo de ejecución: " + tiempoEjecucion + " ms");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Error al ejecutar el algoritmo de Bellman-Ford: " + ex.getMessage());
         }
@@ -646,8 +650,12 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
     private void btnFloydActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFloydActionPerformed
 
         try {
+            long tiempoInicio = System.currentTimeMillis();
             String resultado = floydWarshall(pozoControlDao.getGrafo());
             mostrarResultadoEnTextArea(resultado, txaFloyd);
+            long tiempoFin = System.currentTimeMillis();
+            long tiempoEjecucion = tiempoFin - tiempoInicio;
+            JOptionPane.showMessageDialog(null, "Tiempo de ejecución: " + tiempoEjecucion + " ms");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Error al ejecutar el algoritmo de Floyd-Warshall: " + ex.getMessage());
         }
@@ -703,8 +711,12 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
     private void btnAnchuraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnchuraActionPerformed
         
         try {
+            long tiempoInicio = System.currentTimeMillis();
             ListaDinamica<Integer> recorrido = recorridoAnchura( 1);
             mostrarRecorridoEnTextArea(recorrido, txaAnchura);
+            long tiempoFin = System.currentTimeMillis();
+            long tiempoEjecucion = tiempoFin - tiempoInicio;
+            JOptionPane.showMessageDialog(null, "Tiempo de ejecución: " + tiempoEjecucion + " ms");
         } 
         catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Error al realizar el recorrido en anchura: " + ex.getMessage());
@@ -715,8 +727,12 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
     private void btnProfundidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfundidadActionPerformed
 
         try {
+            long tiempoInicio = System.currentTimeMillis();
             ListaDinamica<Integer> recorrido = recorridoProfundidad(1);
             mostrarRecorridoEnTextArea(recorrido, txaProfundidad);
+            long tiempoFin = System.currentTimeMillis();
+            long tiempoEjecucion = tiempoFin - tiempoInicio;
+            JOptionPane.showMessageDialog(null, "Tiempo de ejecución: " + tiempoEjecucion + " ms");
         } 
         catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Error al realizar el recorrido en profundidad: " + ex.getMessage());
