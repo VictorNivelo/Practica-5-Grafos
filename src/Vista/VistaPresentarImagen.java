@@ -2,23 +2,26 @@
 package Vista;
 
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 /**
  *
  * @author Victor
  */
 public class VistaPresentarImagen extends javax.swing.JFrame {
-
+    public JLabel lblImagen;
+    
     /**
      * Creates new form VistaPresentarImagen
      */
     public VistaPresentarImagen() {
         initComponents();
         this.setLocationRelativeTo(null);
-        PresentarImagen.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        PresentarImagen.setVerticalAlignment(javax.swing.SwingConstants.CENTER);
-        getContentPane().add(PresentarImagen, java.awt.BorderLayout.CENTER);        
-        pack();
+        lblImagen = new javax.swing.JLabel();
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        lblImagen.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblImagen.setVerticalAlignment(javax.swing.SwingConstants.CENTER);
+        getContentPane().add(lblImagen, java.awt.BorderLayout.CENTER);
     }
     
     public void mostrarImagen(String rutaImagen) {
@@ -44,8 +47,13 @@ public class VistaPresentarImagen extends javax.swing.JFrame {
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jButton1.setText("REGRESAR");
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 390, -1, -1));
-        jPanel1.add(PresentarImagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 425, 425));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 440, -1, -1));
+        jPanel1.add(PresentarImagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 690, 480));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -55,11 +63,15 @@ public class VistaPresentarImagen extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -97,7 +109,7 @@ public class VistaPresentarImagen extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel PresentarImagen;
+    public static javax.swing.JLabel PresentarImagen;
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables

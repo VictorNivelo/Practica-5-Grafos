@@ -8,7 +8,7 @@ import Controlador.TDA.Grafos.Excepcion.VerticeException;
  * @author Victor
  * @param <E>
  */
-public class GrafoNoDirigidoEtiquetado<E> extends GradoDirigidoEtiquetado<E>{
+public class GrafoNoDirigidoEtiquetado<E> extends GrafoDirigidoEtiquetado<E>{
     
     public GrafoNoDirigidoEtiquetado(Integer numVer, Class clazz) {
         super(numVer, clazz);

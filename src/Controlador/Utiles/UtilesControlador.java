@@ -4,7 +4,10 @@ package Controlador.Utiles;
 import Controlador.TDA.ListaDinamica.Excepcion.ListaVacia;
 import Controlador.TDA.ListaDinamica.Excepcion.PosicionNoEncontrada;
 import Controlador.TDA.ListaDinamica.ListaDinamica;
+import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 /**
  *
@@ -245,6 +248,42 @@ public class UtilesControlador {
         String textoSinEspacios = texto.replaceAll("\\s", "").replaceAll("[^a-zA-Z0-9]", "");
         String busquedaSinEspacios = busqueda.replaceAll("\\s", "").replaceAll("[^a-zA-Z0-9]", "");
         return textoSinEspacios.toLowerCase().startsWith(busquedaSinEspacios.toLowerCase());
+    }
+    
+    public static double coordGpsToKm(double lat1, double lon1, double lat2, double lon2) {
+        double lat1rad = Math.toRadians(lat1);
+        double lon1rad = Math.toRadians(lon1);
+        double lat2rad = Math.toRadians(lat2);
+        double lon2rad = Math.toRadians(lon2);
+
+        double difLatitud = lat1rad - lat2rad;
+        double difLongitud = lon1rad - lon2rad;
+
+        double a = Math.pow(Math.sin(difLatitud / 2), 2)
+                + Math.cos(lat1rad)
+                * Math.cos(lat2rad)
+                * Math.pow(Math.sin(difLongitud / 2), 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        double radioTierraKm = 6378.0;
+        double distancia = radioTierraKm * c;
+
+        return distancia;
+    }
+    
+    
+    public static void copiarArchivo(File origen, File destino) throws Exception {
+        Files.copy(origen.toPath(),(destino).toPath(),StandardCopyOption.REPLACE_EXISTING);
+    }
+    
+    public static String extension(String fileName) {
+        String extension = "";
+
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i + 1);
+        }
+        return extension;
     }
     
 }

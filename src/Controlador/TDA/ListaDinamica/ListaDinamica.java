@@ -238,6 +238,7 @@ public class ListaDinamica<E> {
         Longitud = 0;
     }
     
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public E[] toArray() {
         Class clazz;
         E[] matriz = null;
@@ -338,104 +339,3 @@ public class ListaDinamica<E> {
         return StringB.toString();
     }
 }
-//    
-//    public Object[] CovertirEnArreglo() {
-//        Object[] Arreglos = new Object[Longitud];
-//        Nodo<E> actual = cabezera;
-//
-//        for (int i = 0; i < Longitud; i++) {
-//            Arreglos[i] = actual.getInfo();
-//            actual = actual.getSiguiente();
-//        }
-//
-//        return Arreglos;
-//    }
-//    
-//}
-//
-
-    
-    //    private E getPrimero() throws ListaVacia {
-//        if (EstaVacio()) {
-//            throw new ListaVacia("La lista esta vacia");
-//        }
-//        return cabezera.getInfo();
-//    }
-//    
-//    private E getFinal() throws ListaVacia{
-//        if(EstaVacio()){
-//            throw new ListaVacia("La lista esta vacia");
-//        }
-//        return ultimo.getInfo();
-//    }
-//}
-    //    public E ObtenerPrimero(Integer pos) throws EstaVacia{
-//        
-//        if (!EstaVacio()) {
-//            E info = null;
-//            if (pos >= 0 && pos < Longitud) {
-//                if (pos == 0) {
-//                    info = cabezera.getInfo();
-//                } 
-//                else {
-//                    Nodo<E> ayuda = cabezera;
-//                    for (int i = 0; i < pos; i++) {
-//                        ayuda = ayuda.getSiguiente();
-//                    }
-//                    info = ayuda.getInfo();
-//                }
-//
-//            } 
-//            else {
-//                throw new EstaVacia("La lista esta vacia");
-//            }
-//            return cabezera.getInfo();
-//        } 
-//        else {
-//            throw new EstaVacia("La lista esta vacia");
-//        }
-//    }
-    
-//    public E eliminar(Integer pos) throws ListaVacia, IndexOutOfBoundsException {
-//        if (!EstaVacio()) {
-//            E dato = null;
-//            if (pos >= 0 && pos < Longitud) {
-//                if (pos == 0) {
-//                    dato = cabezera.getInfo();
-//                    cabezera = cabezera.getSiguiente();
-//                    Longitud--;
-//                } 
-//                else {
-//                    Nodo<E> aux = cabezera;
-//                    
-//                    for (int i = 0; i < pos; i++) {
-//                        aux = aux.getSiguiente();
-//                    }
-//                    
-//                    dato = aux.getInfo();
-//                    Nodo<E> proximo = aux.getSiguiente();
-//                    aux.setSiguiente(proximo.getSiguiente());
-//                    Longitud--;
-//                }
-//            } 
-//            else {
-//                throw new IndexOutOfBoundsException();
-//            }
-//            return dato;
-//        } 
-//        else {
-//            throw new ListaVacia();
-//        }
-//    }
-//    
-    //    
-//    public E[] toArray(){
-//        Class clazz = null;
-//        E[] matriz = null;
-//        if(Longitud > 0 ){
-//            clazz = cabezera.getInfo().getClass();
-//            matriz = (E[])java.lang.reflect.Array.newInstance(clazz, Longitud);      
-//        }
-//        return matriz;
-//    } 
-

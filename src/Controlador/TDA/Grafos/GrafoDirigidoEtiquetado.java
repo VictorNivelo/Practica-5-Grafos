@@ -12,17 +12,70 @@ import java.util.HashMap;
  * @author Victor
  * @param <E>
  */
-public class GradoDirigidoEtiquetado<E> extends GrafoDirigido{
+public class GrafoDirigidoEtiquetado<E> extends GrafoDirigido{
     
-    protected E etiquetas[];
+    protected E[] etiquetas;
     protected HashMap<E, Integer> dicVertices;
     private Class<E> clazz;
     
-    public GradoDirigidoEtiquetado(Integer numVert, Class clazz) {
+    public GrafoDirigidoEtiquetado(Integer numVert, Class clazz) {
         super(numVert);
         this.clazz = clazz;
-        etiquetas = (E[]) Array.newInstance(clazz, numVert);
-        dicVertices = new HashMap(numVert);
+        etiquetas = (E[]) Array.newInstance(clazz, numVert+1);
+        dicVertices = new HashMap<>(numVert);
+    }
+    
+    public Integer getVerticeE(E label) throws Exception {
+        Integer aux = dicVertices.get(label);
+        if (aux != null) {
+            return aux;
+        } else {
+            throw new VerticeException("No se encuentra ese vertice asociado a esa etiqueta");
+        }
+    }
+    
+    public E getEtiquetaE(Integer codigo) throws Exception {
+        if (codigo <= num_vertice()) {
+            return etiquetas[codigo];
+        } 
+        else {
+            throw new EtiquetaNoEstablecida();
+        }
+//        return etiquetas[codigo - 1];
+    }
+    
+    public Boolean isEdge(E o, E d) throws Exception {
+        if (isAllLabelsGraph()) {
+            return existe_arista(getVerticeE(o), getVerticeE(d));
+        } else {
+            throw new EtiquetaNoEstablecida();
+        }
+    }
+    
+    public void insertEdgeE(E o, E d) throws Exception {
+        if (isAllLabelsGraph()) {
+            insertar_arista(getVerticeE(o), getVerticeE(d), Double.NaN);
+        } 
+        else {
+            throw new EtiquetaNoEstablecida();
+        }
+    }
+
+    public void insertEdgeE(E o, E d, Double peso) throws Exception {
+        if (isAllLabelsGraph()) {
+            insertar_arista(getVerticeE(o), getVerticeE(d), peso);
+        } 
+        else {
+            throw new EtiquetaNoEstablecida();
+        }
+    }
+    
+    public ListaDinamica<Adyacencia> adjacents(E label) throws Exception {
+        if (isAllLabelsGraph()) {
+            return adycentes(getVerticeE(label));
+        } else {
+            throw new EtiquetaNoEstablecida();
+        }
     }
     
     private Integer getIndiceE(E etiqueta) throws Exception {
@@ -35,57 +88,15 @@ public class GradoDirigidoEtiquetado<E> extends GrafoDirigido{
         }
     }
 
-    public E getEtiquetaE(Integer codigo) throws Exception {
-        if (codigo <= num_vertice()) {
-            return etiquetas[codigo];
-        } 
-        else {
-            throw new EtiquetaNoEstablecida();
-        }
-//        return etiquetas[codigo - 1];
-    }
-
-    public Boolean isEdgeE(E o, E d) throws Exception {
-        if (isAllLabelsGraph()) {
-            return existe_arista(getIndiceE(o), getIndiceE(d));
-        } 
-        else {
-            throw new EtiquetaNoEstablecida();
-        }
-    }
     
-    public void insertEdgeE(E o, E d) throws Exception {
-        if (isAllLabelsGraph()) {
-            insertar_arista(getIndiceE(o), getIndiceE(d), Double.NaN);
-        } 
-        else {
-            throw new EtiquetaNoEstablecida();
-        }
-    }
-
-    public void insertEdgeE(E o, E d, Double weight) throws Exception {
-        if (isAllLabelsGraph()) {
-            insertar_arista(getIndiceE(o), getIndiceE(d), weight);
-        } 
-        else {
-            throw new EtiquetaNoEstablecida();
-        }
-    }
-
-    public ListaDinamica<Adyacencia> ListaAdyacencias(E etiqueta) throws Exception {
-        if (isAllLabelsGraph()) {
-            return adycentes(getIndiceE(etiqueta));
-        } 
-        else {
-            throw new EtiquetaNoEstablecida();
-        }
-    }
     
+    
+
     public void etiquetarVertice(Integer vertice, E etiqueta) throws Exception {
         etiquetas[vertice] = etiqueta;
         dicVertices.put(etiqueta, vertice);
     }
-    
+
     public Boolean isAllLabelsGraph() {
         Boolean band = true;
         for (int i = 1; i < etiquetas.length; i++) {
@@ -96,6 +107,18 @@ public class GradoDirigidoEtiquetado<E> extends GrafoDirigido{
         }
         return band;
     }
+
+
+//    public ListaDinamica<Adyacencia> ListaAdyacencias(E etiqueta) throws Exception {
+//        if (isAllLabelsGraph()) {
+//            return adycentes(getIndiceE(etiqueta));
+//        } 
+//        else {
+//            throw new EtiquetaNoEstablecida();
+//        }
+//    }
+//    
+//    
     
     @Override
     public String toString() {
