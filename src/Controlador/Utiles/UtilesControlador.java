@@ -1,6 +1,7 @@
 
 package Controlador.Utiles;
 
+import Controlador.TDA.Grafos.Grafo;
 import Controlador.TDA.ListaDinamica.Excepcion.ListaVacia;
 import Controlador.TDA.ListaDinamica.Excepcion.PosicionNoEncontrada;
 import Controlador.TDA.ListaDinamica.ListaDinamica;
@@ -284,6 +285,81 @@ public class UtilesControlador {
             extension = fileName.substring(i + 1);
         }
         return extension;
+    }
+    
+    private static final int INF = Integer.MAX_VALUE;
+
+    public static void bellmanFord(int[][] grafo, int origen) {
+        int V = grafo.length;
+        int[] distancia = new int[V];
+        for (int i = 0; i < V; i++) {
+            distancia[i] = INF;
+        }
+        distancia[origen] = 0;
+
+        for (int i = 1; i < V; ++i) {
+            for (int u = 0; u < V; ++u) {
+                for (int v = 0; v < V; ++v) {
+                    if (grafo[u][v] != 0 && distancia[u] != INF && distancia[u] + grafo[u][v] < distancia[v]) {
+                        distancia[v] = distancia[u] + grafo[u][v];
+                    }
+                }
+            }
+        }
+
+        for (int u = 0; u < V; ++u) {
+            for (int v = 0; v < V; ++v) {
+                if (grafo[u][v] != 0 && distancia[u] != INF && distancia[u] + grafo[u][v] < distancia[v]) {
+                    System.out.println("El grafo contiene ciclos de peso negativo");
+                    return;
+                }
+            }
+        }
+
+        for (int i = 0; i < V; i++) {
+            System.out.println("Distancia desde el nodo " + origen + " al nodo " + i + " es " + distancia[i]);
+        }
+    }
+
+    public static void floydWarshall(int[][] grafo) {
+        int V = grafo.length;
+        int[][] distancias = new int[V][V];
+
+        // Inicializar distancias con INF
+        for (int i = 0; i < V; ++i) {
+            for (int j = 0; j < V; ++j) {
+                if (i == j) {
+                    distancias[i][j] = 0;
+                } else if (grafo[i][j] != 0) {
+                    distancias[i][j] = grafo[i][j];
+                } else {
+                    distancias[i][j] = INF;
+                }
+            }
+        }
+
+        // Calcular las distancias mínimas entre cada par de vértices
+        for (int k = 0; k < V; ++k) {
+            for (int i = 0; i < V; ++i) {
+                for (int j = 0; j < V; ++j) {
+                    if (distancias[i][k] != INF && distancias[k][j] != INF && distancias[i][k] + distancias[k][j] < distancias[i][j]) {
+                        distancias[i][j] = distancias[i][k] + distancias[k][j];
+                    }
+                }
+            }
+        }
+
+        // Imprimir las distancias mínimas
+        for (int i = 0; i < V; ++i) {
+            for (int j = 0; j < V; ++j) {
+                if (distancias[i][j] == INF) {
+                    System.out.print("INF ");
+                } else {
+                    System.out.print(distancias[i][j] + " ");
+                }
+            }
+            System.out.println();
+        }
     }
     
 }

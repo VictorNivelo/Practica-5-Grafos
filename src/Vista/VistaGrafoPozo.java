@@ -5,11 +5,15 @@
 package Vista;
 
 import Controlador.Dao.Modelo.PozoDao;
+import Controlador.TDA.Grafos.Adyacencia;
 import Controlador.TDA.Grafos.DibujarGrafo;
+import Controlador.TDA.Grafos.Grafo;
 import Controlador.TDA.ListaDinamica.Excepcion.ListaVacia;
+import Controlador.TDA.ListaDinamica.ListaDinamica;
 import Controlador.Utiles.UtilesPozo;
 import Vista.ModeloTabla.ModeloAdyancencia;
 import java.io.File;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -24,63 +28,348 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
 
     /**
      * Creates new form VistaGrafoPozo
+     * @throws Controlador.TDA.ListaDinamica.Excepcion.ListaVacia
      */
     public VistaGrafoPozo() throws ListaVacia{
         initComponents();
         this.setLocationRelativeTo(null);
         limpiar();
     }
-    
+
     private void limpiar() throws ListaVacia {
         try {
-            UtilesPozo.cargarComboEscuela(cbxOrigen);
-        UtilesPozo.cargarComboEscuela(cbxDestino);
+//            UtilesPozo.cargarComboEscuela(cbxOrigen);
+//            UtilesPozo.cargarComboEscuela(cbxDestino);
             cargarTabla();
         } 
         catch (Exception e) {
 
         }
     }
-    
+
     private void cargarTabla() throws Exception {
         mtae.setGrafo(pozoControlDao.getGrafo());
         mtae.fireTableDataChanged();
         tblA.setModel(mtae);
         tblA.updateUI();
     }
-    
+
     private void mostrarGrafo() throws Exception {
         DibujarGrafo p = new DibujarGrafo();
         p.updateFile(pozoControlDao.getGrafo());
         File nav = new File("d3/grafo.html");
         java.awt.Desktop.getDesktop().open(nav);
     }
-    
+
     private void mostrarMapa() throws Exception {
         UtilesPozo.crearMapaEscuela(pozoControlDao.getGrafo());
         File nav = new File("mapas/index.html");
         java.awt.Desktop.getDesktop().open(nav);
     }
     
-    private void adycencia() {
+    public void conectarAleatoriamente() throws Exception {
         try {
-            Integer o = cbxOrigen.getSelectedIndex();
-            Integer d = cbxDestino.getSelectedIndex();
-            if (o.intValue() == d.intValue()) {
-                JOptionPane.showMessageDialog(null, "Escoja escuelas diferentes");
+            Random random = new Random();
+            int v1 = random.nextInt(pozoControlDao.getListaPozo().getLongitud());
+            int v2;
+
+            do {
+                v2 = random.nextInt(pozoControlDao.getListaPozo().getLongitud());
             } 
-            else {
-                Double dist = UtilesPozo.calcularDistanciaEscuelas(pozoControlDao.getListaPozo().getInfo(o), pozoControlDao.getListaPozo().getInfo(d));
-                dist = UtilesPozo.redondear(dist);
-                pozoControlDao.getGrafo().insertEdgeE(pozoControlDao.getListaPozo().getInfo(o), pozoControlDao.getListaPozo().getInfo(d), dist);
-                JOptionPane.showMessageDialog(null, "Adyacencia Generada");
-                limpiar();
+            while (v1 == v2);
+
+            Double distancia = UtilesPozo.calcularDistanciaEscuelas(
+                    pozoControlDao.getListaPozo().getInfo(v1),
+                    pozoControlDao.getListaPozo().getInfo(v2)
+            );
+            distancia = UtilesPozo.redondear(distancia);
+
+            pozoControlDao.getGrafo().insertEdgeE(
+                    pozoControlDao.getListaPozo().getInfo(v1),
+                    pozoControlDao.getListaPozo().getInfo(v2),
+                    distancia
+            );
+        } 
+        catch (Exception e) {
+            mostrarMensajeError("No se pudo generar adecuadamente las adyacencias");
+        }
+        System.out.println(pozoControlDao.getGrafo().toString());
+    }
+    
+    public void generarAdyacencias() throws ListaVacia, Exception {
+        Random random = new Random();
+        int maxAdyacencias = 2;
+
+        for (int i = 0; i < pozoControlDao.getListaPozo().getLongitud(); i++) {
+            int numAdyacencias = random.nextInt(maxAdyacencias - 1) + 2;
+
+            ListaDinamica<Integer> disponibles = obtenerNodosDisponibles(i);
+
+            for (int k = 0; k < numAdyacencias && !disponibles.EstaVacio(); k++) {
+                int indiceAleatorio = random.nextInt(disponibles.getLongitud());
+                int indiceNodo = disponibles.getInfo(indiceAleatorio);
+
+                Double distancia = UtilesPozo.calcularDistanciaEscuelas(
+                        pozoControlDao.getListaPozo().getInfo(i),
+                        pozoControlDao.getListaPozo().getInfo(indiceNodo)
+                );
+                distancia = UtilesPozo.redondear(distancia);
+                pozoControlDao.getGrafo().insertEdgeE(
+                        pozoControlDao.getListaPozo().getInfo(i),
+                        pozoControlDao.getListaPozo().getInfo(indiceNodo),
+                        distancia
+                );
+                disponibles.eliminar(indiceAleatorio);
             }
-        } catch (Exception e) {
-            System.out.println("no catga la adyacencua");
+        }
+        pozoControlDao.guardarGrafo();
+    }
+
+//    public void generarAdyacencias() throws ListaVacia, Exception {
+//        Random random = new Random();
+//        int maxAdyacencias = 2;
+//
+//        for (int i = 0; i < pozoControlDao.getListaPozo().getLongitud(); i++) {
+//            int numAdyacencias = random.nextInt(maxAdyacencias - 1) + 2;
+//
+//            ListaDinamica<Integer> disponibles = obtenerNodosDisponibles(i);
+//
+//            for (int k = 0; k < numAdyacencias && !disponibles.EstaVacio(); k++) {
+//                int indiceAleatorio = random.nextInt(disponibles.getLongitud());
+//                int indiceNodo = disponibles.getInfo(indiceAleatorio);
+//
+//                Double distancia = UtilesPozo.calcularDistanciaEscuelas(
+//                        pozoControlDao.getListaPozo().getInfo(i),
+//                        pozoControlDao.getListaPozo().getInfo(indiceNodo)
+//                );
+//                distancia = UtilesPozo.redondear(distancia);
+//                pozoControlDao.getGrafo().insertEdgeE(
+//                        pozoControlDao.getListaPozo().getInfo(i),
+//                        pozoControlDao.getListaPozo().getInfo(indiceNodo),
+//                        distancia
+//                );
+//                disponibles.eliminar(indiceAleatorio);
+//            }
+//        }
+//    }
+
+    private ListaDinamica<Integer> obtenerNodosDisponibles(int indiceActual) {
+        ListaDinamica<Integer> disponibles = new ListaDinamica<>();
+        for (int j = indiceActual + 1; j < pozoControlDao.getListaPozo().getLongitud(); j++) {
+            disponibles.Agregar(j);
+        }
+        return disponibles;
+    }
+
+    private void mostrarMensajeError(String mensaje) {
+        JOptionPane.showMessageDialog(null, mensaje, "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static final double INF = Double.POSITIVE_INFINITY;
+
+   public static String floydWarshall(Grafo grafo) throws Exception {
+    int numVertices = grafo.num_vertice();
+    double[][] distancias = new double[numVertices + 1][numVertices + 1];
+    int[][] predecesores = new int[numVertices + 1][numVertices + 1];
+
+    // Inicializar matriz de distancias y predecesores
+    for (int i = 1; i <= numVertices; i++) {
+        for (int j = 1; j <= numVertices; j++) {
+            if (i == j) {
+                distancias[i][j] = 0;
+            } else if (grafo.existe_arista(i, j)) {
+                distancias[i][j] = grafo.peso_arista(i, j);
+            } else {
+                distancias[i][j] = Double.POSITIVE_INFINITY;
+            }
+            predecesores[i][j] = -1;
         }
     }
 
+    // Aplicar algoritmo de Floyd-Warshall
+    for (int k = 1; k <= numVertices; k++) {
+        for (int i = 1; i <= numVertices; i++) {
+            for (int j = 1; j <= numVertices; j++) {
+                if (distancias[i][k] != Double.POSITIVE_INFINITY && distancias[k][j] != Double.POSITIVE_INFINITY
+                        && distancias[i][k] + distancias[k][j] < distancias[i][j]) {
+                    distancias[i][j] = distancias[i][k] + distancias[k][j];
+                    predecesores[i][j] = k;
+                }
+            }
+        }
+    }
+
+    // Construir y devolver el resultado como una cadena
+    StringBuilder resultado = new StringBuilder();
+    resultado.append("Distancias mínimas entre todos los pares de vértices:\n");
+    for (int i = 1; i <= numVertices; i++) {
+        for (int j = 1; j <= numVertices; j++) {
+            resultado.append(distancias[i][j] == Double.POSITIVE_INFINITY ? "INF\t" : distancias[i][j] + "\t");
+        }
+        resultado.append("\n");
+    }
+    return resultado.toString();
+}
+
+    public static String bellmanFord(Grafo grafo, int inicio) throws Exception {
+    int numVertices = grafo.num_vertice();
+    double[] distancias = new double[numVertices + 1];
+    int[] predecesores = new int[numVertices + 1];
+
+    // Inicializar distancias y predecesores
+    for (int i = 1; i <= numVertices; i++) {
+        distancias[i] = Double.POSITIVE_INFINITY;
+        predecesores[i] = -1;
+    }
+    distancias[inicio] = 0;
+
+    // Aplicar algoritmo de Bellman-Ford
+    for (int i = 1; i <= numVertices - 1; i++) {
+        for (int j = 1; j <= numVertices; j++) {
+            ListaDinamica<Adyacencia> listaA = grafo.adycentes(j);
+            if (listaA != null) {
+                for (int k = 0; k < listaA.getLongitud(); k++) {
+                    Adyacencia a = listaA.getInfo(k);
+                    if (distancias[j] != Double.POSITIVE_INFINITY && distancias[j] + a.getPeso() < distancias[a.getDestino()]) {
+                        distancias[a.getDestino()] = distancias[j] + a.getPeso();
+                        predecesores[a.getDestino()] = j;
+                    }
+                }
+            }
+        }
+    }
+
+    // Construir y devolver el resultado como una cadena
+    StringBuilder resultado = new StringBuilder();
+    resultado.append("Distancias mínimas desde el vértice ").append(inicio).append(":\n");
+    for (int i = 1; i <= numVertices; i++) {
+        resultado.append("Vértice ").append(i).append(": ").append(distancias[i]).append("\n");
+    }
+    return resultado.toString();
+}
+    
+    public ListaDinamica<Integer> recorridoAnchura(Integer v) throws Exception {
+    ListaDinamica<Integer> recorrido = new ListaDinamica<>();
+    ListaDinamica<Integer> cola = new ListaDinamica<>();
+    ListaDinamica<Integer> visitados = new ListaDinamica<>();
+
+    if (pozoControlDao.getGrafo() == null) {
+        throw new Exception("Error al realizar el recorrido en anchura: El grafo es nulo.");
+    }
+
+    cola.Agregar(v);
+    visitados.Agregar(v);
+
+    while (!cola.EstaVacio()) {
+        Integer u = cola.eliminar(0);
+        recorrido.Agregar(u);
+
+        ListaDinamica<Adyacencia> listaA = pozoControlDao.getGrafo().adycentes(u);
+        if (listaA != null) {
+            for (int i = 0; i < listaA.getLongitud(); i++) {
+                Adyacencia a = listaA.getInfo(i);
+                Integer w = a.getDestino();
+                if (!visitados.contiene(w)) {
+                    visitados.Agregar(w);
+                    cola.Agregar(w);
+                }
+            }
+        } else {
+            throw new Exception("Error al realizar el recorrido en anchura: Lista de adyacentes nula para el vértice " + u);
+        }
+    }
+    return recorrido;
+}
+    
+//    public ListaDinamica<Integer> recorridoAnchura(Grafo grafo, int inicio) throws Exception {
+//        ListaDinamica<Integer> recorrido = new ListaDinamica<>();
+//        ListaDinamica<Integer> cola = new ListaDinamica<>();
+//        ListaDinamica<Integer> visitados = new ListaDinamica<>();
+//
+//        visitados.Agregar(inicio);
+//        recorrido.Agregar(inicio);
+//        cola.Agregar(inicio);
+//
+//        while (!cola.EstaVacio()) {
+//            int u = cola.eliminar(0);
+//            ListaDinamica<Adyacencia> adyacentes = grafo.adycentes(u);
+//            for (int i = 0; i < adyacentes.getLongitud(); i++) {
+//                Adyacencia adyacente = adyacentes.getInfo(i);
+//                int w = adyacente.getDestino();
+//                if (!visitados.contiene(w)) {
+//                    visitados.Agregar(w);
+//                    recorrido.Agregar(w);
+//                    cola.Agregar(w);
+//                }
+//            }
+//        }
+//        return recorrido;
+//    }
+//    
+//    public static ListaDinamica<Integer> recorridoAnchura(Grafo grafo, int inicio) throws Exception {
+//        ListaDinamica<Integer> recorrido = new ListaDinamica<>();
+//        ListaDinamica<Integer> cola = new ListaDinamica<>();
+//        ListaDinamica<Integer> visitados = new ListaDinamica<>();
+//
+//        visitados.Agregar(inicio);
+//        recorrido.Agregar(inicio);
+//        cola.Agregar(inicio);
+//
+//        while (!cola.EstaVacio()) {
+//            int u = cola.eliminar(0);
+//            ListaDinamica<Adyacencia> adyacentes = grafo.adycentes(u);
+//            for (int i = 0; i < adyacentes.getLongitud(); i++) {
+//                Adyacencia adyacente = adyacentes.getInfo(i);
+//                int w = adyacente.getDestino();
+//                if (!visitados.contiene(w)) {
+//                    visitados.Agregar(w);
+//                    recorrido.Agregar(w);
+//                    cola.Agregar(w);
+//                }
+//            }
+//        }
+//        return recorrido;
+//    }
+    
+    public ListaDinamica<Integer> recorridoProfundidad(Integer v) throws Exception {
+        ListaDinamica<Integer> recorrido = new ListaDinamica<>();
+        ListaDinamica<Integer> pila = new ListaDinamica<>();
+        ListaDinamica<Integer> visitados = new ListaDinamica<>();
+        Integer w;
+        pila.Agregar(v);
+        while (!pila.EstaVacio()) {
+            Integer u = pila.eliminar(pila.getLongitud() - 1);
+            if (!visitados.contiene(u)) {
+                visitados.Agregar(u);
+                recorrido.Agregar(u);
+                ListaDinamica<Adyacencia> listaA = pozoControlDao.getGrafo().adycentes(u);
+                if (listaA != null) { // Agregar verificación de nulidad para adyacentes
+                    for (int i = 0; i < listaA.getLongitud(); i++) {
+                        Adyacencia a = listaA.getInfo(i);
+                        w = a.getDestino();
+                        if (!visitados.contiene(w)) {
+                            pila.Agregar(w);
+                        }
+                    }
+                } else {
+                    throw new Exception("Error al realizar el recorrido en profundidad: Lista de adyacentes nula.");
+                }
+            }
+        }
+        return recorrido;
+    }
+
+    private void mostrarRecorridoEnTextArea(ListaDinamica<Integer> recorrido, javax.swing.JTextArea textArea) throws ListaVacia {
+        textArea.setText(""); 
+        for (int i = 0; i < recorrido.getLongitud(); i++) {
+            textArea.append(recorrido.getInfo(i) + " -> ");
+        }
+    }
+    
+    private void mostrarResultadoEnTextArea(String resultado, javax.swing.JTextArea textArea) {
+        textArea.setText(resultado);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -97,14 +386,22 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
         btnMostrarGrafo = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        cbxOrigen = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        cbxDestino = new javax.swing.JComboBox<>();
         jButton2 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblA = new javax.swing.JTable();
+        btnGuardarAdyacencias = new javax.swing.JButton();
+        btnCargarAdyancencias = new javax.swing.JButton();
+        btnAnchura = new javax.swing.JButton();
+        btnProfundidad = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txaBellman = new javax.swing.JTextArea();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        txaFloyd = new javax.swing.JTextArea();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        txaAnchura = new javax.swing.JTextArea();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        txaProfundidad = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -152,12 +449,8 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
             }
         });
 
-        jLabel2.setText("Origen");
-
-        jLabel3.setText("Destino");
-
         jButton2.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jButton2.setText("AGREGAR ");
+        jButton2.setText("GENERAR ADYACENCIAS");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -178,6 +471,66 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(tblA);
 
+        btnGuardarAdyacencias.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        btnGuardarAdyacencias.setText("GUARDAR");
+        btnGuardarAdyacencias.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarAdyacenciasActionPerformed(evt);
+            }
+        });
+
+        btnCargarAdyancencias.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        btnCargarAdyancencias.setText("CARGAR");
+        btnCargarAdyancencias.setToolTipText("");
+        btnCargarAdyancencias.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCargarAdyancenciasActionPerformed(evt);
+            }
+        });
+
+        btnAnchura.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        btnAnchura.setText("ANCHURA");
+        btnAnchura.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAnchuraActionPerformed(evt);
+            }
+        });
+
+        btnProfundidad.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        btnProfundidad.setText("PROFUNDIDAD");
+        btnProfundidad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProfundidadActionPerformed(evt);
+            }
+        });
+
+        txaBellman.setEditable(false);
+        txaBellman.setColumns(20);
+        txaBellman.setRows(5);
+        txaBellman.setEnabled(false);
+        jScrollPane2.setViewportView(txaBellman);
+
+        txaFloyd.setEditable(false);
+        txaFloyd.setColumns(20);
+        txaFloyd.setRows(5);
+        txaFloyd.setEnabled(false);
+        jScrollPane3.setViewportView(txaFloyd);
+
+        txaAnchura.setEditable(false);
+        txaAnchura.setColumns(20);
+        txaAnchura.setRows(5);
+        txaAnchura.setWrapStyleWord(true);
+        txaAnchura.setEnabled(false);
+        jScrollPane4.setViewportView(txaAnchura);
+
+        txaProfundidad.setEditable(false);
+        txaProfundidad.setColumns(20);
+        txaProfundidad.setLineWrap(true);
+        txaProfundidad.setRows(5);
+        txaProfundidad.setAutoscrolls(false);
+        txaProfundidad.setEnabled(false);
+        jScrollPane5.setViewportView(txaProfundidad);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -185,29 +538,39 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnMostrarGrafo)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnMostrarMapa)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 100, Short.MAX_VALUE)
-                        .addComponent(btnFloyd)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnBellman))
-                    .addComponent(jScrollPane1)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cbxOrigen, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cbxDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)))
+                        .addComponent(btnMostrarGrafo))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnCargarAdyancencias)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGuardarAdyacencias))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                                    .addComponent(btnProfundidad, javax.swing.GroupLayout.DEFAULT_SIZE, 211, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnAnchura, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
+                                    .addComponent(btnFloyd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
+                                    .addComponent(btnBellman, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -215,24 +578,43 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(cbxOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3)
-                    .addComponent(cbxDestino, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton2)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnMostrarGrafo)
+                        .addComponent(btnMostrarMapa)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel4)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnMostrarGrafo)
-                    .addComponent(btnMostrarMapa)
-                    .addComponent(btnFloyd)
-                    .addComponent(btnBellman)
-                    .addComponent(jButton1))
+                    .addComponent(btnGuardarAdyacencias)
+                    .addComponent(btnCargarAdyancencias))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jScrollPane5)
+                                .addGap(6, 6, 6)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnBellman)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(btnProfundidad)
+                                .addComponent(btnAnchura)
+                                .addComponent(btnFloyd)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton1))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -252,10 +634,24 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
 
     private void btnBellmanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBellmanActionPerformed
 
+        try {
+            String resultado = bellmanFord(pozoControlDao.getGrafo(), 1);
+            mostrarResultadoEnTextArea(resultado, txaBellman);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error al ejecutar el algoritmo de Bellman-Ford: " + ex.getMessage());
+        }
+        
     }//GEN-LAST:event_btnBellmanActionPerformed
 
     private void btnFloydActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFloydActionPerformed
 
+        try {
+            String resultado = floydWarshall(pozoControlDao.getGrafo());
+            mostrarResultadoEnTextArea(resultado, txaFloyd);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error al ejecutar el algoritmo de Floyd-Warshall: " + ex.getMessage());
+        }
+        
     }//GEN-LAST:event_btnFloydActionPerformed
 
     private void btnMostrarMapaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarMapaActionPerformed
@@ -274,7 +670,7 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
             mostrarGrafo();
         }
         catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "No sirve el mostrar grafo");
+            JOptionPane.showMessageDialog(null, "No sirve el mostrar grafo", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
         }
 
     }//GEN-LAST:event_btnMostrarGrafoActionPerformed
@@ -289,9 +685,51 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         
-        adycencia();
+        try {
+            generarAdyacencias();
+            cargarTabla();
+        } 
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error: ");
+        }
         
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void btnGuardarAdyacenciasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarAdyacenciasActionPerformed
+        
+      
+    }//GEN-LAST:event_btnGuardarAdyacenciasActionPerformed
+
+    private void btnAnchuraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnchuraActionPerformed
+        
+        try {
+            ListaDinamica<Integer> recorrido = recorridoAnchura( 1);
+            mostrarRecorridoEnTextArea(recorrido, txaAnchura);
+        } 
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error al realizar el recorrido en anchura: " + ex.getMessage());
+        }
+
+    }//GEN-LAST:event_btnAnchuraActionPerformed
+
+    private void btnProfundidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfundidadActionPerformed
+
+        try {
+            ListaDinamica<Integer> recorrido = recorridoProfundidad(1);
+            mostrarRecorridoEnTextArea(recorrido, txaProfundidad);
+        } 
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error al realizar el recorrido en profundidad: " + ex.getMessage());
+        }
+
+
+    }//GEN-LAST:event_btnProfundidadActionPerformed
+
+    private void btnCargarAdyancenciasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarAdyancenciasActionPerformed
+        
+        
+        
+    }//GEN-LAST:event_btnCargarAdyancenciasActionPerformed
 
     /**
      * @param args the command line arguments
@@ -333,20 +771,28 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAnchura;
     private javax.swing.JButton btnBellman;
+    private javax.swing.JButton btnCargarAdyancencias;
     private javax.swing.JButton btnFloyd;
+    private javax.swing.JButton btnGuardarAdyacencias;
     private javax.swing.JButton btnMostrarGrafo;
     private javax.swing.JButton btnMostrarMapa;
-    private javax.swing.JComboBox<String> cbxDestino;
-    private javax.swing.JComboBox<String> cbxOrigen;
+    private javax.swing.JButton btnProfundidad;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTable tblA;
+    private javax.swing.JTextArea txaAnchura;
+    private javax.swing.JTextArea txaBellman;
+    private javax.swing.JTextArea txaFloyd;
+    private javax.swing.JTextArea txaProfundidad;
     // End of variables declaration//GEN-END:variables
 }

@@ -35,7 +35,6 @@ public abstract class Grafo {
             
         }
         return grafo.toString(); 
-        // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
     
 }

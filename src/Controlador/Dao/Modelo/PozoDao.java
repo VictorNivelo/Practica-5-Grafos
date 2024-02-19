@@ -13,7 +13,15 @@ import java.io.FileWriter;
  *
  * @author Victor
  */
-public class PozoDao  extends DaoImplement<Pozo>{
+public class PozoDao extends DaoImplement<Pozo>{
+    
+    public PozoDao(Class<Pozo> clazz) {
+        super(Pozo.class);
+    }
+
+    public PozoDao() {
+        super(Pozo.class);
+    }
     
     private ListaDinamica<Pozo> ListaPozo = new ListaDinamica<>();
     private GrafoNoDirigidoEtiquetado<Pozo> grafoPozo;
@@ -49,13 +57,7 @@ public class PozoDao  extends DaoImplement<Pozo>{
         this.pozo = pozo;
     }
     
-    public PozoDao(Class<Pozo> clazz) {
-        super(Pozo.class);
-    }
-
-    public PozoDao() {
-        super(Pozo.class);
-    }
+    
 
     public GrafoNoDirigidoEtiquetado<Pozo> getGrafo () throws Exception {
         if (grafoPozo == null) {

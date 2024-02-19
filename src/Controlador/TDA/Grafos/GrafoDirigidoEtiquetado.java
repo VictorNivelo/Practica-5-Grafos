@@ -25,6 +25,13 @@ public class GrafoDirigidoEtiquetado<E> extends GrafoDirigido{
         dicVertices = new HashMap<>(numVert);
     }
     
+    public void borrarAristas() throws Exception {
+        for (int i = 1; i <= num_vertice(); i++) {
+            ListaDinamica<Adyacencia> adyacentes = adycentes(i);
+            adyacentes.Limpiar();
+        }
+    }
+    
     public Integer getVerticeE(E label) throws Exception {
         Integer aux = dicVertices.get(label);
         if (aux != null) {

@@ -322,6 +322,17 @@ public class ListaDinamica<E> {
         this.Longitud = Longitud;
     }
     
+    public boolean contiene(E destino) {
+        Nodo<E> help = cabezera;
+        while (help != null) {
+            if (help.getInfo().equals(destino)) {
+                return true;
+            }
+            help = help.getSiguiente();
+        }
+        return false;
+    }
+    
     @Override
     public String toString() {
         StringBuilder StringB = new StringBuilder("Datos de lista \n");

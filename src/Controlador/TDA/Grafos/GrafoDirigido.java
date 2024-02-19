@@ -121,5 +121,123 @@ public class GrafoDirigido extends Grafo{
         this.numeroAristas = numeroAristas;
     }
     
+    public ListaDinamica<Integer> recorridoAnchura(Integer v) throws Exception {
+        ListaDinamica<Integer> recorrido = new ListaDinamica<>();
+        ListaDinamica<Integer> cola = new ListaDinamica<>();
+        ListaDinamica<Integer> visitados = new ListaDinamica<>();
+        Integer w;
+        visitados.Agregar(v);
+        recorrido.Agregar(v);
+        cola.Agregar(v);
+        while (!cola.EstaVacio()) {
+            Integer u = cola.eliminar(0);
+            ListaDinamica<Adyacencia> listaA = adycentes(u);
+            for (int i = 0; i < listaA.getLongitud(); i++) {
+                Adyacencia a = listaA.getInfo(i);
+                w = a.getDestino();
+                if (!visitados.contiene(w)) {
+                    visitados.Agregar(w);
+                    recorrido.Agregar(w);
+                    cola.Agregar(w);
+                }
+            }
+        }
+        return recorrido;
+    }
+
+    public ListaDinamica<Integer> recorridoProfundidad(Integer v) throws Exception {
+        ListaDinamica<Integer> recorrido = new ListaDinamica<>();
+        ListaDinamica<Integer> pila = new ListaDinamica<>();
+        ListaDinamica<Integer> visitados = new ListaDinamica<>();
+        Integer w;
+        pila.Agregar(v);
+        while (!pila.EstaVacio()) {
+            Integer u = pila.eliminar(pila.getLongitud() - 1);
+            if (!visitados.contiene(u)) {
+                visitados.Agregar(u);
+                recorrido.Agregar(u);
+                ListaDinamica<Adyacencia> listaA = adycentes(u);
+                for (int i = 0; i < listaA.getLongitud(); i++) {
+                    Adyacencia a = listaA.getInfo(i);
+                    w = a.getDestino();
+                    if (!visitados.contiene(w)) {
+                        pila.Agregar(w);
+                    }
+                }
+            }
+        }
+        return recorrido;
+    }
+
+    public void floyd() throws Exception {
+        Double[][] distancias = new Double[num_vertice() + 1][num_vertice() + 1];
+
+        for (int i = 1; i <= num_vertice(); i++) {
+            for (int j = 1; j <= num_vertice(); j++) {
+                if (i == j) {
+                    distancias[i][j] = 0.0;
+                } else if (existe_arista(i, j)) {
+                    distancias[i][j] = peso_arista(i, j);
+                } else {
+                    distancias[i][j] = Double.POSITIVE_INFINITY;
+                }
+            }
+        }
+
+        for (int k = 1; k <= num_vertice(); k++) {
+            for (int i = 1; i <= num_vertice(); i++) {
+                for (int j = 1; j <= num_vertice(); j++) {
+                    if (distancias[i][k] + distancias[k][j] < distancias[i][j]) {
+                        distancias[i][j] = distancias[i][k] + distancias[k][j];
+                    }
+                }
+            }
+        }
+
+        for (int i = 1; i <= num_vertice(); i++) {
+            for (int j = 1; j <= num_vertice(); j++) {
+                if (distancias[i][j] == Double.POSITIVE_INFINITY) {
+                    System.out.print("INF\t");
+                } else {
+                    System.out.print(distancias[i][j] + "\t");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    public void bellmanFord(Integer v) throws Exception {
+        Double[] distancias = new Double[num_vertice() + 1];
+        Integer[] predecesores = new Integer[num_vertice() + 1];
+
+        for (int i = 1; i <= num_vertice(); i++) {
+            distancias[i] = Double.POSITIVE_INFINITY;
+            predecesores[i] = null;
+        }
+        distancias[v] = 0.0;
+
+        for (int i = 1; i <= num_vertice() - 1; i++) {
+            for (int j = 1; j <= num_vertice(); j++) {
+                ListaDinamica<Adyacencia> listaA = adycentes(j);
+                for (int k = 0; k < listaA.getLongitud(); k++) {
+                    Adyacencia a = listaA.getInfo(k);
+                    if (distancias[j] + a.getPeso() < distancias[a.getDestino()]) {
+                        distancias[a.getDestino()] = distancias[j] + a.getPeso();
+                        predecesores[a.getDestino()] = j;
+                    }
+                }
+            }
+        }
+
+        for (int i = 1; i <= num_vertice(); i++) {
+            ListaDinamica<Adyacencia> listaA = adycentes(i);
+            for (int j = 0; j < listaA.getLongitud(); j++) {
+                Adyacencia a = listaA.getInfo(j);
+                if (distancias[i] + a.getPeso() < distancias[a.getDestino()]) {
+                    throw new Exception("El grafo contiene un ciclo negativo");
+                }
+            }
+        }
+    }
 }
 
