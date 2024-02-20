@@ -172,7 +172,6 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
     double[][] distancias = new double[numVertices + 1][numVertices + 1];
     int[][] predecesores = new int[numVertices + 1][numVertices + 1];
 
-    // Inicializar matriz de distancias y predecesores
     for (int i = 1; i <= numVertices; i++) {
         for (int j = 1; j <= numVertices; j++) {
             if (i == j) {
@@ -186,7 +185,6 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
         }
     }
 
-    // Aplicar algoritmo de Floyd-Warshall
     for (int k = 1; k <= numVertices; k++) {
         for (int i = 1; i <= numVertices; i++) {
             for (int j = 1; j <= numVertices; j++) {
@@ -199,7 +197,6 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
         }
     }
 
-    // Construir y devolver el resultado como una cadena
     StringBuilder resultado = new StringBuilder();
     resultado.append("Distancias mínimas entre todos los pares de vértices:\n");
     for (int i = 1; i <= numVertices; i++) {
@@ -216,14 +213,12 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
     double[] distancias = new double[numVertices + 1];
     int[] predecesores = new int[numVertices + 1];
 
-    // Inicializar distancias y predecesores
     for (int i = 1; i <= numVertices; i++) {
         distancias[i] = Double.POSITIVE_INFINITY;
         predecesores[i] = -1;
     }
     distancias[inicio] = 0;
 
-    // Aplicar algoritmo de Bellman-Ford
     for (int i = 1; i <= numVertices - 1; i++) {
         for (int j = 1; j <= numVertices; j++) {
             ListaDinamica<Adyacencia> listaA = grafo.adycentes(j);
@@ -239,7 +234,6 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
         }
     }
 
-    // Construir y devolver el resultado como una cadena
     StringBuilder resultado = new StringBuilder();
     resultado.append("Distancias mínimas desde el vértice ").append(inicio).append(":\n");
     for (int i = 1; i <= numVertices; i++) {
@@ -248,7 +242,7 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
     return resultado.toString();
 }
     
-    public ListaDinamica<Integer> recorridoAnchura(Integer v) throws Exception {
+public ListaDinamica<Integer> recorridoAnchura(Integer v) throws Exception {
     ListaDinamica<Integer> recorrido = new ListaDinamica<>();
     ListaDinamica<Integer> cola = new ListaDinamica<>();
     ListaDinamica<Integer> visitados = new ListaDinamica<>();
@@ -275,7 +269,8 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
                 }
             }
         } else {
-            throw new Exception("Error al realizar el recorrido en anchura: Lista de adyacentes nula para el vértice " + u);
+            throw new Exception(
+                    "Error al realizar el recorrido en anchura: Lista de adyacentes nula para el vértice " + u);
         }
     }
     return recorrido;
@@ -331,33 +326,33 @@ public class VistaGrafoPozo extends javax.swing.JFrame {
 //        return recorrido;
 //    }
     
-    public ListaDinamica<Integer> recorridoProfundidad(Integer v) throws Exception {
-        ListaDinamica<Integer> recorrido = new ListaDinamica<>();
-        ListaDinamica<Integer> pila = new ListaDinamica<>();
-        ListaDinamica<Integer> visitados = new ListaDinamica<>();
-        Integer w;
-        pila.Agregar(v);
-        while (!pila.EstaVacio()) {
-            Integer u = pila.eliminar(pila.getLongitud() - 1);
-            if (!visitados.contiene(u)) {
-                visitados.Agregar(u);
-                recorrido.Agregar(u);
-                ListaDinamica<Adyacencia> listaA = pozoControlDao.getGrafo().adycentes(u);
-                if (listaA != null) { // Agregar verificación de nulidad para adyacentes
-                    for (int i = 0; i < listaA.getLongitud(); i++) {
-                        Adyacencia a = listaA.getInfo(i);
-                        w = a.getDestino();
-                        if (!visitados.contiene(w)) {
-                            pila.Agregar(w);
-                        }
+ public ListaDinamica<Integer> recorridoProfundidad(Integer v) throws Exception {
+    ListaDinamica<Integer> recorrido = new ListaDinamica<>();
+    ListaDinamica<Integer> pila = new ListaDinamica<>();
+    ListaDinamica<Integer> visitados = new ListaDinamica<>();
+    Integer w;
+    pila.Agregar(v);
+    while (!pila.EstaVacio()) {
+        Integer u = pila.eliminar(pila.getLongitud() - 1);
+        if (!visitados.contiene(u)) {
+            visitados.Agregar(u);
+            recorrido.Agregar(u);
+            ListaDinamica<Adyacencia> listaA = pozoControlDao.getGrafo().adycentes(u);
+            if (listaA != null) { // Agregar verificación de nulidad para adyacentes
+                for (int i = 0; i < listaA.getLongitud(); i++) {
+                    Adyacencia a = listaA.getInfo(i);
+                    w = a.getDestino();
+                    if (!visitados.contiene(w)) {
+                        pila.Agregar(w);
                     }
-                } else {
-                    throw new Exception("Error al realizar el recorrido en profundidad: Lista de adyacentes nula.");
                 }
+            } else {
+                throw new Exception("Error al realizar el recorrido en profundidad: Lista de adyacentes nula.");
             }
         }
-        return recorrido;
     }
+    return recorrido;
+}
 
     private void mostrarRecorridoEnTextArea(ListaDinamica<Integer> recorrido, javax.swing.JTextArea textArea) throws ListaVacia {
         textArea.setText(""); 

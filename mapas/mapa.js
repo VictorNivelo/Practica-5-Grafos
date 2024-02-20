@@ -31,3 +31,6 @@ L.marker([-4.029, -79.207]).addTo(map)
 L.marker([-4.029, -79.207]).addTo(map)
 .bindPopup("Pozo 8")
 .openPopup();
+L.marker([-4.035, -79.205]).addTo(map)
+.bindPopup("pozo 9")
+.openPopup();
